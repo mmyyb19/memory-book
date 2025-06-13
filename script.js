@@ -37,6 +37,103 @@ const memoryText = document.getElementById('memoryText');
 let currentPackageIndex = 0;
 let currentMemoryIndex = 0;
 
+// 记忆包裹相关功能
+let memories = [];
+const API_URL = 'http://localhost:3000/api';
+
+// 加载记忆包裹
+async function loadMemories() {
+    try {
+        const response = await fetch(`${API_URL}/memories`);
+        memories = await response.json();
+        updateMemoryDisplay();
+    } catch (error) {
+        console.error('加载记忆包裹失败:', error);
+    }
+}
+
+// 保存记忆包裹
+async function saveMemory(memoryData) {
+    try {
+        const formData = new FormData();
+        formData.append('title', memoryData.title);
+        formData.append('content', memoryData.content);
+        if (memoryData.image) {
+            formData.append('image', memoryData.image);
+        }
+        formData.append('userId', 'user1'); // 这里可以根据实际用户系统修改
+
+        const response = await fetch(`${API_URL}/memories`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            await loadMemories();
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('保存记忆包裹失败:', error);
+        return false;
+    }
+}
+
+// 更新记忆显示
+function updateMemoryDisplay() {
+    const memoryText = document.getElementById('memoryText');
+    const background = document.getElementById('background');
+    
+    if (memories.length > 0) {
+        const currentMemory = memories[currentMemoryIndex];
+        memoryText.textContent = currentMemory.title;
+        if (currentMemory.imageUrl) {
+            background.style.backgroundImage = `url(${currentMemory.imageUrl})`;
+        }
+    }
+}
+
+// 修改上传按钮点击事件
+document.getElementById('uploadBtn').addEventListener('click', async function() {
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+    
+    modalTitle.textContent = '创建记忆包裹';
+    modalContent.innerHTML = `
+        <form id="memoryForm" class="space-y-4">
+            <input type="text" id="memoryTitle" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="标题" required>
+            <textarea id="memoryContent" class="w-full px-4 py-2 border border-gray-300 rounded-lg" placeholder="内容" rows="4" required></textarea>
+            <input type="file" id="memoryImage" class="w-full" accept="image/*">
+            <button type="submit" class="w-full px-4 py-2 bg-[#4A90E2] text-white rounded-lg hover:bg-[#3A80D2] transition-colors">
+                保存
+            </button>
+        </form>
+    `;
+    
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    document.getElementById('memoryForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const memoryData = {
+            title: document.getElementById('memoryTitle').value,
+            content: document.getElementById('memoryContent').value,
+            image: document.getElementById('memoryImage').files[0]
+        };
+        
+        const success = await saveMemory(memoryData);
+        if (success) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    });
+});
+
+// 页面加载时获取记忆包裹
+document.addEventListener('DOMContentLoaded', loadMemories);
+
 // 初始化
 function init() {
     // 设置初始背景和文字
