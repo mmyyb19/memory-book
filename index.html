@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Book</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#4A90E2] font-['Inter']">
+    <!-- 菜单按钮 -->
+    <button id="menuBtn" class="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white/20 backdrop-blur-sm">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- 侧边菜单 -->
+    <div id="sideMenu" class="fixed top-0 left-0 h-full w-64 bg-white/90 backdrop-blur-sm transform -translate-x-full transition-transform duration-300 z-40">
+        <div class="p-6">
+            <h2 class="text-xl font-semibold mb-6 text-[#4A90E2]">Memory Book</h2>
+            <nav>
+                <ul class="space-y-4">
+                    <li>
+                        <button id="uploadBtn" class="w-full text-left px-4 py-2 rounded-lg hover:bg-[#A8E6CF]/20 transition-colors">
+                            创建记忆包裹
+                        </button>
+                    </li>
+                    <li>
+                        <button id="favoritesBtn" class="w-full text-left px-4 py-2 rounded-lg hover:bg-[#A8E6CF]/20 transition-colors">
+                            记忆包裹
+                        </button>
+                    </li>
+                    <li>
+                        <button id="settingsBtn" class="w-full text-left px-4 py-2 rounded-lg hover:bg-[#A8E6CF]/20 transition-colors">
+                            设置
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- 验证码输入模态框 -->
+    <div id="verifyModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-11/12 max-w-md mx-4">
+            <h3 class="text-xl font-semibold mb-4 text-[#4A90E2]">请输入验证码</h3>
+            <input type="text" id="verifyCodeInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4" placeholder="请输入验证码">
+            <button id="submitVerifyCode" class="px-4 py-2 bg-[#4A90E2] text-white rounded-lg hover:bg-[#3A80D2] transition-colors">提交</button>
+        </div>
+    </div>
+
+    <!-- 验证码校验脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const verifyModal = document.getElementById('verifyModal');
+            const verifyCodeInput = document.getElementById('verifyCodeInput');
+            const submitVerifyCode = document.getElementById('submitVerifyCode');
+            const mainContent = document.querySelector('main');
+
+            // 检查是否已验证
+            if (localStorage.getItem('verified') === 'true') {
+                verifyModal.style.display = 'none';
+                mainContent.style.display = 'flex';
+            } else {
+                verifyModal.style.display = 'flex';
+                mainContent.style.display = 'none';
+            }
+
+            // 提交验证码
+            submitVerifyCode.addEventListener('click', function() {
+                const code = verifyCodeInput.value.trim();
+                // 这里可以调用后端接口校验验证码，示例用固定值 '1234'
+                if (code === '1234') {
+                    localStorage.setItem('verified', 'true');
+                    verifyModal.style.display = 'none';
+                    mainContent.style.display = 'flex';
+                } else {
+                    alert('验证码错误，请重试');
+                }
+            });
+        });
+    </script>
+
+    <!-- 主内容区 -->
+    <main class="min-h-screen flex items-center justify-center relative">
+        <div id="background" class="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000"></div>
+        <div class="absolute inset-0 bg-black/30"></div>
+        <div class="relative z-10 text-center px-4">
+            <h1 id="memoryText" class="text-4xl md:text-6xl font-semibold text-white mb-4 transition-opacity duration-500">
+                这是我的记忆
+            </h1>
+            <p class="text-white/80 text-sm">点击屏幕切换记忆</p>
+        </div>
+    </main>
+
+    <!-- 模态框 -->
+    <div id="modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-11/12 max-w-md mx-4">
+            <h3 id="modalTitle" class="text-xl font-semibold mb-4 text-[#4A90E2]"></h3>
+            <div id="modalContent"></div>
+            <button id="closeModal" class="mt-4 px-4 py-2 bg-[#4A90E2] text-white rounded-lg hover:bg-[#3A80D2] transition-colors">
+                关闭
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
